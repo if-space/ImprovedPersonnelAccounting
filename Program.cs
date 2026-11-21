@@ -1,31 +1,32 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Reflection.PortableExecutable;
+using System.Data;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Lessons
 {
     class Program
     {
-        static Dictionary<string, List<string>> employeesByPosition = new Dictionary<string, List<string>>();
-
         static void Main(string[] args)
         {
             const string CommandAddEmployee = "1";
             const string CommandRemoveEmployee = "2";
-            const string CommandDisplayInformation = "3";
+            const string CommandDysplayInformation = "3";
             const string CommandExit = "4";
+
+            Dictionary<string, List<string>> employeByPosition = new Dictionary<string, List<string>>();
 
             bool isOpen = true;
 
+
             while (isOpen)
             {
-                Console.Clear();
-
                 Console.WriteLine($"Нажмите {CommandAddEmployee} чтобы добавить сотрудника");
                 Console.WriteLine();
                 Console.WriteLine($"Нажмите {CommandRemoveEmployee} чтобы удалить сотрудника");
                 Console.WriteLine();
-                Console.WriteLine($"Нажмите {CommandDisplayInformation} чтобы показать всех сотрудников");
+                Console.WriteLine($"Нажмите {CommandDysplayInformation} чтобы показать всех сотрудников");
                 Console.WriteLine();
                 Console.WriteLine($"Нажмите {CommandExit} чтобы выйти из программы");
                 Console.WriteLine();
@@ -35,94 +36,86 @@ namespace Lessons
                 switch (userInput)
                 {
                     case CommandAddEmployee:
-                        Console.WriteLine("Введите должность: ");
-                        string position = Console.ReadLine().ToLower();
-
-                        Console.WriteLine("Введите ФИО: ");
-                        string fullName = Console.ReadLine().ToLower();
-
-                        AddEmployee(position, fullName);
+                        AddEmployee(employeByPosition);
                         break;
 
                     case CommandRemoveEmployee:
-                        Console.WriteLine("Введите должность сотрудника: ");
-                        position = Console.ReadLine().ToLower();
-
-                        Console.WriteLine("Введите ФИО сотрудника: ");
-                        fullName = Console.ReadLine().ToLower();
-
-                        RemoveEmployee(position, fullName);
+                        RemoveEmployee(employeByPosition);
                         break;
 
-                    case CommandDisplayInformation:
-                        ShowAll(employeesByPosition);
+                    case CommandDysplayInformation:
+                        ShowAll(employeByPosition);
                         break;
 
                     case CommandExit:
                         isOpen = false;
-                        Console.WriteLine("Программа замершена");
                         break;
 
                     default:
-                        Console.WriteLine("Введена неизвестная команда!!!");
+                        Console.WriteLine("Введена неизвестная команда");
                         break;
                 }
-
-                if (isOpen)
-                {
-                    Console.WriteLine("Нажмите на любую кнопку для возврата в меню...");
-                    Console.ReadLine();
-                }
             }
         }
 
-        static void AddEmployee(string position, string fullName)
+        static void AddEmployee(Dictionary<string, List<string>> employeesByPosition)
         {
-            if (!employeesByPosition.TryGetValue(position, out List<string> employees))
+            Console.WriteLine("Введите должность: ");
+            string position = Console.ReadLine().ToLower();
+
+            Console.WriteLine("Введите ФИО: ");
+            string fullName = Console.ReadLine().ToLower();
+
+            if (!employeesByPosition.TryGetValue(position, out List<string> employes))
             {
-                employees = new List<string>();
-                employeesByPosition.Add(position, employees);
+                employes = new List<string>();
+                employeesByPosition.Add(position, employes);
             }
 
-            employees.Add(fullName);
-            Console.WriteLine("Сотрудник успешно добавлен!");
+            employes.Add(fullName);
         }
 
-        static void RemoveEmployee(string position, string fullName)
+        static void RemoveEmployee(Dictionary<string, List<string>> employessByPosition)
         {
-            if (!employeesByPosition.TryGetValue(position, out List<string> employees))
+            Console.Write("Введите должность сотрудника: ");
+            string position = Console.ReadLine().ToLower();
+
+            if (!employessByPosition.TryGetValue(position, out List<string> employes))
             {
-                Console.WriteLine("Должность не найдена");
+                Console.WriteLine("Такой должности нет!");
                 return;
             }
 
-            if (!employees.Remove(fullName))
+            Console.Write("Введите ФИО сотрудника: ");
+            string fullName = Console.ReadLine();
+
+            if (!employes.Remove(fullName))
             {
-                Console.WriteLine("Сотрудника нет на такой должности.");
+                Console.WriteLine("Такого сотрудника на этой должности нет");
                 return;
             }
 
-            if (employees.Count == 0)
+            if (employes.Count == 0)
             {
-                employeesByPosition.Remove(position);
+                employessByPosition.Remove(position);
             }
 
-            Console.WriteLine("Сотрудник удален");
+            Console.WriteLine("Сотрудник удален!");
         }
 
-        static void ShowAll(Dictionary<string, List<string>> employes)
+        static void ShowAll(Dictionary<string, List<string>> employessByPosition)
         {
-            if (employeesByPosition.Count == 0)
+            if (employessByPosition.Count == 0)
             {
-                Console.WriteLine("Сотрудников пока еще нет");
+                Console.WriteLine("Сотрудников пока нет!");
                 return;
             }
 
-            foreach (var employee in employeesByPosition)
+            foreach (var employe in employessByPosition)
             {
-                Console.WriteLine($"Должность: {employee.Key}");
+                Console.WriteLine($"Должность: {employe.Key}");
 
-                foreach (var name in employee.Value)
+                foreach (var name in employe.Value)
                 {
                     Console.WriteLine($"Имя: {name}");
                 }
